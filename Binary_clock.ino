@@ -9,7 +9,7 @@ http://creativecommons.org/license/cc-gpl
 #include <JC_Button.h>
 #include "SoftPWM.h"
 
-//#define RTC_MODULE
+#define RTC_MODULE
 // Uncomment if you have the RTC module.
 
 #ifdef RTC_MODULE
@@ -78,9 +78,9 @@ void loop() {
   #ifdef RTC_MODULE 
   //  **** RTC installed *****
     now = Rtc.GetDateTime();
-    if (now.Second() == second) newSecond=false;
+    if (now.Second() != second) newSecond=true;
     second=now.Second();
-    minute=now.Second();
+    minute=now.Minute();
     hour=now.Hour();
   //  **** RTC installed *****
   #endif
@@ -141,21 +141,39 @@ void loop() {
     if (error) SoftPWMSet(13, 255); //Example for using error state.
 
   if (btMinutes.wasPressed()) {
-    minute++;
+    minute++; if (minute >=60) minute=0;
     second = 0;
     #ifdef RTC_MODULE
-      now.Minute=minute;
-      Rtc.SetDateTime(now)
+    char userTime[8];
+    userTime[0] = hour / 10 + '0';
+    userTime[1] = hour % 10 + '0';
+    userTime[2] = ':';
+    userTime[3] = minute / 10 + '0';
+    userTime[4] = minute % 10 + '0';
+    userTime[5] = ':';
+    userTime[6] = '0';
+    userTime[7] = '0';
+    RtcDateTime manual = RtcDateTime(__DATE__, userTime);
+    Rtc.SetDateTime(manual);
     #endif
     newSecond=true;
     }
   
   if (btHours.wasPressed()) {
-    hour++;
+    hour++; if (hour >=24) hour=0;
     second = 0;
     #ifdef RTC_MODULE
-      now.Minute=minute;
-      Rtc.SetDateTime(now)
+    char userTime[8];
+    userTime[0] = hour / 10 + '0';
+    userTime[1] = hour % 10 + '0';
+    userTime[2] = ':';
+    userTime[3] = minute / 10 + '0';
+    userTime[4] = minute % 10 + '0';
+    userTime[5] = ':';
+    userTime[6] = '0';
+    userTime[7] = '0';
+    RtcDateTime manual = RtcDateTime(__DATE__, userTime);
+    Rtc.SetDateTime(manual);
     #endif   
     newSecond=true;
    }
